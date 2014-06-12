@@ -1,16 +1,60 @@
 # Reproducible Research: Peer Assessment 1
 
-
+## Background and context
+For about 3 decades athletes have been using heart rate monitors, altimeters and other devices to record their work load and their bodies response to the work load. As GPS has become ubiquitous, measurements have become even more complete. Those trends are merging with QS ("Quantified Self") movement of the last decade or so. Now phones equiped with acelorometers can make useful estimates of activities such as walking, sitting, climbing stairs, etc. It uses data provided as part of Coursera's Reproducible Research course taught by Roger D. Peng.
+This study examines data on the  number of steps taken by anonymous individuals at 5 minute intervals during October and November 2012. 
 ## Loading and preprocessing the data
+Project was initiated by 
 
+1. forking instructor's github repository (https://github.com/rdpeng/RepData_PeerAssessment1) to my account
 
+2. cloning it to my workstation
+
+3. loading required libraries
+
+3. unziping activity.zip to ./data/activity.csv to get the raw data for reading and follow implicit course standard
+
+4. using read.csv()
+
+5. use colClasses option so date column contains dates, not characters or some other type.
+
+6. verify that the required data file exists and quit if it does not. If the clone is broken, downloading from a magic location may produce unprecitable results. Instead, "fail early". An improved implementation would do the 'git clone git@github.com:blainewishart/RepData_PeerAssessment1.git' from within R or RStudio.
+
+7. present a quick summary of the data, class of date column, and 50 rows of data well into the data for sanity check. Simple use of head(raw_data) was not included because it offers (possibly) misleading information about the character of the data.
+```{r} 
+library(ggplot2)
+if(file.exists("activity.zip")) unzip("activity.zip", exdir="data") #make sure data is fresh
+stopifnot(file.exists("activity.csv"))
+
+raw_data<-read.csv("./data/activity.csv", colClasses = c("numeric", "Date", "numeric"))
+print(raw_data[550:600,])
+class(raw_data$date)
+summary(raw_data)
+
+```
 
 ## What is mean total number of steps taken per day?
+Simply calculating the number of steps per day is not too useful because we have too many days, but using head() to examine the first few rows and tail to examine the last few has some value.
+```{r}
+steps_per_day<- tapply(raw_data$steps, raw_data$date, sum)
+head(steps_per_day)
+tail(steps_per_day)
+```
+A dense histogram provides a higher level view and provides a hint about missing values.
+```{r}
+qplot(date,steps,data=raw_data, binwidth=1)
 
-
+```
 
 ## What is the average daily activity pattern?
-
+```{r}
+qplot(interval, steps, data = raw_data, 
+             geom = "line", 
+             ylab="Steps", 
+             xlab="Interval", 
+             main="Average Daily activity", 
+             stat="summary", fun.y = "mean")
+```
 
 
 ## Imputing missing values
